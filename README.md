@@ -4,13 +4,15 @@
 
 ## Installation
 
-Add this line to your application's Gemfile:
+Add `rspec-armour` to the **test group** in your application's `Gemfile`:
 
 ```ruby
-gem 'rspec-armour'
+group :test do
+  gem 'rspec-armour'
+end
 ```
 
-And then execute:
+Then run:
 
     $ bundle install
 
@@ -22,11 +24,29 @@ Or install it yourself as:
 
 Once required, `rspec-armour` automatically prevents mocking of ActiveRecord finders, associations, and persistence methods.
 
-### Examples of restricted methods:
+### Examples of restricted methods
 
-*   **Class methods:** `.find`, `.where`, `.create`, `.update`, etc.
-*   **Instance methods:** `#save`, `#update`, `#destroy`, `#reload`, etc.
-*   **Associations:** `has_many`, `belongs_to`, and their helper methods (e.g., `user.items`, `user.item_ids`).
+| Category | Methods |
+|---|---|
+| **Class finders** | `.find`, `.find_by`, `.find_by!`, `.where`, `.all`, `.first`, `.last`, `.count`, `.pluck`, `.pick`, `.exists?` |
+| **Class persistence** | `.create`, `.create!`, `.update`, `.update!`, `.destroy_all`, `.delete_all`, `.delete_by`, `.destroy_by` |
+| **Instance persistence** | `#save`, `#save!`, `#update`, `#update!`, `#destroy`, `#destroy!`, `#delete`, `#touch`, `#reload` |
+| **Associations** | `has_many`/`belongs_to` reader, writer, and `_ids` helpers (e.g. `user.posts`, `user.posts=`, `user.post_ids`) |
+
+### What it looks like in practice
+
+```ruby
+# BAD — rspec-armour raises RSpec::Armour::MockError for these:
+allow(User).to receive(:find).and_return(user)          # class finder
+allow(User).to receive(:where).and_return([user])       # class finder
+allow(user).to receive(:save).and_return(true)          # instance persistence
+allow(user).to receive(:posts).and_return([post])       # association reader
+
+# GOOD — use real database objects instead:
+user = create(:user)          # FactoryBot / fixtures
+post = create(:post, user:)   # real association in the DB
+result = User.where(active: true)  # real query against test DB
+```
 
 ### Disabling restrictions
 
@@ -38,11 +58,17 @@ RSpec::Armour.without_restrictions do
 end
 ```
 
-Or by using RSpec metadata:
+Or by using RSpec metadata on an individual example or context:
 
 ```ruby
 it "does something specific", :without_rspec_armour do
   allow(User).to receive(:where).and_return([])
+end
+
+context "legacy adapter", :without_rspec_armour do
+  it "stubs the finder" do
+    allow(User).to receive(:find).and_return(double)
+  end
 end
 ```
 
