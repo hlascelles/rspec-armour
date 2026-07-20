@@ -1,6 +1,8 @@
 # rspec-armour
 
-`rspec-armour` protects your ActiveRecord models from being mocked or stubbed in RSpec tests. It forces you to use real database objects (or factories) for your models, leading to more robust and reliable tests.
+`rspec-armour` is the RSpec ActiveRecord MockUp Restrictor. It protects your ActiveRecord models
+from being mocked or stubbed in RSpec tests. It forces you to use real database objects (or
+factories) for your models, leading to more robust and reliable tests.
 
 ## Installation
 
@@ -26,12 +28,12 @@ Once required, `rspec-armour` automatically prevents mocking of ActiveRecord fin
 
 ### Examples of restricted methods
 
-| Category | Methods |
-|---|---|
-| **Class finders** | `.find`, `.find_by`, `.find_by!`, `.where`, `.all`, `.first`, `.last`, `.count`, `.pluck`, `.pick`, `.exists?` |
-| **Class persistence** | `.create`, `.create!`, `.update`, `.update!`, `.destroy_all`, `.delete_all`, `.delete_by`, `.destroy_by` |
-| **Instance persistence** | `#save`, `#save!`, `#update`, `#update!`, `#destroy`, `#destroy!`, `#delete`, `#touch`, `#reload` |
-| **Associations** | `has_many`/`belongs_to` reader, writer, and `_ids` helpers (e.g. `user.posts`, `user.posts=`, `user.post_ids`) |
+| Category                 | Methods                                                                                                        |
+|--------------------------|----------------------------------------------------------------------------------------------------------------|
+| **Class finders**        | `.find`, `.find_by`, `.find_by!`, `.where`, `.all`, `.first`, `.last`, `.count`, `.pluck`, `.pick`, `.exists?` |
+| **Class persistence**    | `.create`, `.create!`, `.update`, `.update!`, `.destroy_all`, `.delete_all`, `.delete_by`, `.destroy_by`       |
+| **Instance persistence** | `#save`, `#save!`, `#update`, `#update!`, `#destroy`, `#destroy!`, `#delete`, `#touch`, `#reload`              |
+| **Associations**         | `has_many`/`belongs_to` reader, writer, and `_ids` helpers (e.g. `user.posts`, `user.posts=`, `user.post_ids`) |
 
 ### What it looks like in practice
 
