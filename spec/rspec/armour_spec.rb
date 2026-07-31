@@ -156,4 +156,19 @@ RSpec.describe RSpec::Armour do
       expect(User.where(name: "foo")).to eq([])
     end
   end
+
+  describe "#expect_receive_and_call_original" do
+    it "allows expectations on restricted active record model methods when calling original" do
+      expect_receive_and_call_original(User, :create!)
+        .with(hash_including(name: "Call Original User"))
+      user_obj = User.create!(name: "Call Original User")
+      expect(user_obj).to be_persisted
+    end
+
+    it "prevents overriding with and_return when using expect_receive_and_call_original" do
+      expect do
+        expect_receive_and_call_original(User, :create!).and_return(nil)
+      end.to raise_error(RSpec::Armour::MockError, /and_return/)
+    end
+  end
 end
