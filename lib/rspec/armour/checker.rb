@@ -21,9 +21,11 @@ module RSpec
       ].freeze
 
       DISABLED_KEY = :rspec_armour_disabled
+      NEGATIVE_EXPECTATION_KEY = :rspec_armour_negative_expectation
 
       def self.restricted?(target, method_name)
         return false if disabled?
+        return false if negative_expectation?
 
         method_sym = method_name.to_sym
         is_class, klass = resolve_target_info(target)
@@ -32,6 +34,18 @@ module RSpec
 
         restricted_by_list?(is_class,
                             method_sym) || association_method_on_class?(klass, method_sym)
+      end
+
+      def self.negative_expectation?
+        Thread.current[NEGATIVE_EXPECTATION_KEY]
+      end
+
+      def self.as_negative_expectation!
+        previous = Thread.current[NEGATIVE_EXPECTATION_KEY]
+        Thread.current[NEGATIVE_EXPECTATION_KEY] = true
+        yield
+      ensure
+        Thread.current[NEGATIVE_EXPECTATION_KEY] = previous
       end
 
       def self.resolve_target_info(target)
