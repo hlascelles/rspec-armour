@@ -157,6 +157,20 @@ RSpec.describe RSpec::Armour do
     end
   end
 
+  describe "not_to receive" do
+    it "allows not_to receive on class methods" do
+      expect(User).not_to receive(:find)
+    end
+
+    it "allows not_to receive on instance methods" do
+      expect(user).not_to receive(:save)
+    end
+
+    it "allows not_to receive on associations" do
+      expect(user).not_to receive(:items)
+    end
+  end
+
   describe "#expect_receive_and_call_original" do
     it "allows expectations on restricted active record model methods when calling original" do
       expect_receive_and_call_original(User, :create!)
