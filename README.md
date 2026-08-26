@@ -4,6 +4,40 @@
 from being mocked or stubbed in RSpec tests. It forces you to use real database objects (or
 factories) for your models, leading to more robust and reliable tests.
 
+## Rationale and example usage
+
+Given this production code:
+
+```ruby
+class User < ApplicationRecord
+  has_many :posts
+end
+
+class SomeService
+  def self.find_posted_user(id)
+    User.includes(:posts).where(id: id).first
+  end
+end
+```
+
+You may find that your AI will suggest mocking the `User` model in your RSpec tests.
+But this will return an object that will not have the `posts` association loaded, and your tests
+will not be exercising the real code path. Instead, you should use a real database setup in your
+tests.
+
+```ruby
+# Wrong
+user = double("User", id: 3, name: "Alice")
+expect(User).to receive(:where).with(id: 1).and_return([user])
+
+# Right
+user = User.create(id: 1, name: "Alice")
+```
+
+Driving this home to an AI with prompts is a Sisyphean task. Make it just error instead! Once
+`rspec-armour` is installed, the mocking code will raise an `RSpec::Armour::MockError` and your
+AI (and fellow devs) will know to use real database objects instead.
+
 ## Installation
 
 Add `rspec-armour` to the **test group** in your application's `Gemfile`:
@@ -77,6 +111,11 @@ end
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/hlascelles/rspec-armour.
+
+## Inspiration
+
+The idea for this gem came from a discussion about the gem [rspec-mockbidden](https://github.com/lovro-bikic/rspec-mockbidden).
+Hat tip to [@lovro-bikic](https://github.com/lovro-bikic)!
 
 ## License
 
